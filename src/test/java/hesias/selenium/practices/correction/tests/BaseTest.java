@@ -4,11 +4,14 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import io.qameta.allure.Attachment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtensionContext; // Important pour détecter l'échec
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class BaseTest {
 
@@ -20,6 +23,7 @@ public class BaseTest {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
 
+        // Gestion du mode Headless (sans interface graphique)
         String headless = System.getenv("HEADLESS");
         if ("true".equalsIgnoreCase(headless)) {
             options.addArguments("--headless=new");
@@ -31,22 +35,25 @@ public class BaseTest {
 
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
+
+        // CORRECTION IMPORTANTE : Initialisation du Wait
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     @AfterEach
-    protected void down() {
-        if (driver != null) {
-            try {
-                saveScreenshot();
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+    protected void down(ExtensionContext context) {
+        // On vérifie si une exception a eu lieu (test échoué)
+        if (context.getExecutionException().isPresent()) {
+            saveScreenshot();
+        }
 
+        if (driver != null) {
             driver.quit();
         }
     }
 
-    @Attachment(value = "Screenshot for the test", type = "image/png", fileExtension = ".png")
+    // Annotation Allure pour attacher le retour de la méthode au rapport
+    @Attachment(value = "Screenshot on Failure", type = "image/png")
     public byte[] saveScreenshot() {
         return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
     }
@@ -68,5 +75,4 @@ public class BaseTest {
         element.clear();
         element.sendKeys(text);
     }
-
 }
