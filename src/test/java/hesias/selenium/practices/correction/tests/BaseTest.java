@@ -36,18 +36,17 @@ public class BaseTest {
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
 
-        // CORRECTION IMPORTANTE : Initialisation du Wait
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     @AfterEach
-    protected void down(ExtensionContext context) {
-        // On vérifie si une exception a eu lieu (test échoué)
-        if (context.getExecutionException().isPresent()) {
-            saveScreenshot();
-        }
-
+    public void quit() {
         if (driver != null) {
+            try {
+                saveScreenshot();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
             driver.quit();
         }
     }
