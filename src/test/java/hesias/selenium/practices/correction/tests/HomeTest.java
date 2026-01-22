@@ -62,4 +62,16 @@ public class HomeTest extends BaseTest {
         assertTrue(isOnGamePage);
     }
 
+    @Test
+    @Story("Navigation vers la page Recrutement")
+    @Severity(SeverityLevel.NORMAL)
+    @Description("Vérifie que l'on peut accéder à la page 'Work' via le menu 'À propos'.")
+    public void testGoToJobOfferPage() {
+        new HomePage(driver)
+                .open()
+                .goToJobOfferPage();
+
+        assertTrue(driver.getCurrentUrl().contains("work"));
+    }
+
 }

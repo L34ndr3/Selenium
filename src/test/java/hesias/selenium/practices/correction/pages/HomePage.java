@@ -1,8 +1,10 @@
 package hesias.selenium.practices.correction.pages;
 
+import  hesias.selenium.practices.correction.pages.WorkPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.interactions.Actions;
 
 public class HomePage extends BasePage {
 
@@ -16,6 +18,10 @@ public class HomePage extends BasePage {
 
     private final By itemSliderContainer = By.cssSelector("item-slider[selenium-id='productsSectionSlider']");
     private final By firstItemSlider = By.cssSelector("a[selenium-id='productTile']");
+
+    private final By aboutMenuDropdown = By.xpath("//span[contains(text(), 'À propos')]/parent::a");
+
+    private final By joinTeamLink = By.cssSelector("a[href*='/work']");
 
     public HomePage(WebDriver driver) {
         super(driver);
@@ -51,6 +57,22 @@ public class HomePage extends BasePage {
         scrollToElement(itemSliderContainer);
         waitClick(firstItemSlider).click();
         return new GamePage(driver);
+    }
+
+    public WorkPage goToJobOfferPage() {
+        if (driver.getCurrentUrl().equals("data:,")) {
+            open();
+        }
+
+        new Actions(driver)
+                .moveToElement(waitUntil(aboutMenuDropdown))
+                .perform();
+
+
+        waitClick(joinTeamLink).click();
+
+
+        return new WorkPage(driver);
     }
 
     public boolean isDisplayed() {
